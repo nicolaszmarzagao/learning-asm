@@ -1,4 +1,4 @@
-section data
+section .data
     msg db "Counting down...", 10
     msg_len equ $ - msg
 
@@ -6,7 +6,8 @@ section data
     space db " "
 
 section .bss
-    counter resb 10 # only counting till 10 after all but im not sure
+    counter resb 4
+    buffer resb 4
 
 section .text
     global _start
@@ -15,23 +16,58 @@ _start:
     mov rax, 1
     mov rdi, 1
     mov rsi, msg
-    mov rbx, msg_len
+    mov rdx, msg_len
     syscall
 
-    mov [counter], 10 ; moves value 10 to counter variable
+    mov byte [counter], 99
 
 loop_count:
+    ; parse numbers
+    movzx rax, byte [counter] ; clear upper bit
+    xor rdx, rdx
+    mov rcx, 10
+    div rcx ; results in rax and rdx
+
+    push rdx
+
+    cmp al, 0
+    je single_digit
+
+    ; convert the fist number
+    add rax, '0'   
+    mov [buffer], al
+
+    ; print the first number
     mov rax, 1
     mov rdi, 1
-    mov rsi, [counter]
-    mov rbx, 1
+    mov rsi, buffer
+    mov rdx, 1
     syscall
 
-    sub [counter], 1
-    add rsi, '0'
 
-    cmp [counter], 0 ; exit when 0
-    jn loop_count
+single_digit:
+    pop rdx
+    ; convert the second number
+    add rdx, '0'   
+    mov [buffer], dl
+
+    ; print the second number
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, buffer
+    mov rdx, 1
+    syscall
+    
+    mov rax, 1
+    mov rdi, 1
+    mov rsi, newline
+    mov rdx, 1
+    syscall
+
+    sub byte [counter], 1
+
+    cmp byte [counter], 0
+    jnz loop_count
 
 exit:
     mov rax, 60
