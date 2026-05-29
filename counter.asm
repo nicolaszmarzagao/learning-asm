@@ -44,7 +44,6 @@ loop_count:
     mov rdx, 1
     syscall
 
-
 single_digit:
     pop rdx
     ; convert the second number
