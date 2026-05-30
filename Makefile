@@ -4,10 +4,11 @@ LD := ld
 
 BUILD_DIR := build
 
+ifneq ($(MAKECMDGOALS),clean)
 ifeq ($(strip $(PROGRAM)),)
 $(error Missing PROGRAM. Use: make PROGRAM=main)
 endif
-
+endif
 MAIN_SRC := $(PROGRAM).asm
 
 LIB_SRCS := \
@@ -38,6 +39,6 @@ $(TARGET): $(OBJECTS)
 	$(LD) $(OBJECTS) -o $@
 
 clean:
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)/*
 
 rebuild: clean all
