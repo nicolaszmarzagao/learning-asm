@@ -1,30 +1,43 @@
 ASM := nasm
-ASMFLAGS := -f elf64
+ASMFLAGS := -f elf64 -I lib/
 LD := ld
 
 BUILD_DIR := build
-.PHONY: all run clean rebuild
 
-all: run
+ifeq ($(strip $(PROGRAM)),)
+$(error Missing PROGRAM. Use: make PROGRAM=main)
+endif
+
+MAIN_SRC := $(PROGRAM).asm
+
+LIB_SRCS := \
+	lib/io.asm \
+	lib/args.asm \
+	lib/string.asm
+
+MACROS := lib/macros.inc
+
+SOURCES := $(MAIN_SRC) $(LIB_SRCS)
+OBJECTS := $(SOURCES:%.asm=$(BUILD_DIR)/%.o)
+TARGET := $(BUILD_DIR)/$(PROGRAM)
+
+.PHONY: all clean rebuild
+
+all: $(TARGET)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
 
-$(BUILD_DIR)/%.o: %.asm | $(BUILD_DIR)
-	@echo "running nasm..."
+$(BUILD_DIR)/%.o: %.asm $(MACROS) | $(BUILD_DIR)
+	@echo "running nasm on $<..."
+	@mkdir -p $(dir $@)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
-$(BUILD_DIR)/%: $(BUILD_DIR)/%.o
+$(TARGET): $(OBJECTS)
 	@echo "running linker..."
-	$(LD) $< -o $@
-
-run: $(BUILD_DIR)/$(PROGRAM)
-	@echo "running program:"
-	@echo "---"
-	@./$(BUILD_DIR)/$(PROGRAM)
-	@echo "---"
+	$(LD) $(OBJECTS) -o $@
 
 clean:
 	rm -rf $(BUILD_DIR)
 
-rebuild: clean run
+rebuild: clean all
