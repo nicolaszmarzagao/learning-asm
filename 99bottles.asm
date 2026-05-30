@@ -8,8 +8,16 @@ section .data
     phrase3 db "Take one down, pass it around", 10
     phrase3_len equ $ - phrase3
 
-    space db " "
+    phrase_one db "bottle of beer on the wall", 10
+    phrase_one_len equ $ - phrase_one
 
+    phrase2_one db "bottle of beer", 10
+    phrase2_one_len equ $ - phrase2_one
+
+    phrase_nomore db "no more bottles of beer on the wall!", 10
+    phrase_nomore_len equ $ - phrase_nomore
+
+    space db " "
 
 section .bss
     counter resb 4
@@ -56,8 +64,44 @@ beer_loop:
     call print_string
 
     dec byte [counter]
-    cmp byte [counter], 0
+    cmp byte [counter], 1
     jg beer_loop
+    ;else go to final bottle
+
+final_bottle:
+    call convert_counter
+
+    mov rsi, buffer
+    movzx rdx, byte [buffer_len]
+    call print_string
+
+    mov rsi, space
+    mov rdx, 1
+    call print_string
+
+    mov rsi, phrase_one
+    mov rdx, phrase_one_len
+    call print_string
+
+    mov rsi, buffer
+    movzx rdx, byte [buffer_len]
+    call print_string
+
+    mov rsi, space
+    mov rdx, 1
+    call print_string
+
+    mov rsi, phrase2_one
+    mov rdx, phrase2_one_len
+    call print_string
+
+    mov rsi, phrase3
+    mov rdx, phrase3_len
+    call print_string
+
+    mov rsi, phrase_nomore
+    mov rdx, phrase_nomore_len
+    call print_string
 
 exit:
     mov rax, 60
