@@ -4,6 +4,7 @@ section .data
 section .text
 	global strlen
 	global atoi
+	global itoa
 
 ; -------------------------------------------------
 ; strlen
@@ -99,7 +100,7 @@ itoa:
 	pop rbp
 	ret	
 
-.itoa_zero_done
+.itoa_zero_done:
 	mov rax, buffer
 	mov byte [rax], '0'
 	mov byte [rax+1], 0

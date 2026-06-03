@@ -5,6 +5,7 @@ extern 			get_argc
 extern 			get_arg
 extern 			atoi
 extern 			itoa
+extern 			strlen
 
 section .data
 	space 		db " "
@@ -16,11 +17,16 @@ section .data
 	error2 		db "Invalid number or 0, please enter a higher number", 10
 	error2_len 	equ $ - error2
 
+	fizz		db "Fizz", 10
+	buzz		db "Buzz", 10
+	msg_len		equ 5
+	
+	fizzbuzz	db "FizzBuzz", 10
+	fizzbuzz_len	equ $ - fizzbuzz
+
 section .bss
-	limit 		resb 4
-	counter 	resb 4
-	buffer 		resb 4
-	buffer_len 	resb 1
+	limit 		resw 1
+	counter 	resw 1
 
 section .text
 	global 		_start
@@ -44,40 +50,72 @@ _start:
 	cmp 		rax, 0
 	je 		.invalid_number_exit
 	
-	mov 		byte [limit], rax	
-	mov 		byte [counter], 0
+	mov 		word [limit], ax	
+	mov 		word [counter], 0
 
 .fizzbuzz_loop:
-	mov		eax, [counter]
-	cmp 		eax, [limit]	
+	inc		word [counter]
+
+	movzx		rax, word [counter]
+	cmp 		ax, word [limit]	
 	ja 		.exit
 	
-	mov		rdi, [counter]
+	movzx		rdi, word [counter]
 	mov 		rsi, 15
 	call		.is_divisible
 	cmp 		rax, 1
 	je		.print_fizzbuzz
 	
-	mov		rdi, [counter]
+	movzx		rdi, word [counter]
 	mov		rsi, 3
 	call		.is_divisible
 	cmp		rax, 1
 	je		.print_fizz
 
-	mov		rdi, [counter]
+	movzx		rdi, word [counter]
 	mov		rsi, 5
 	call		.is_divisible
 	cmp		rax, 1
 	je		.print_buzz
 	
-	mov		rdi, [counter]	
+	movzx		rdi, word [counter]	
 	call		itoa
+	push		rax
 	
+	mov 		rdi, rax
+	call		strlen
+	
+	pop		rsi
+	mov		rdx, rax
+	call		print_string	
+
+	mov		rsi, newline
+	mov		rdx, 1
+	call		print_string
+
+	jmp		.fizzbuzz_loop
 	
 
 .print_fizzbuzz:
+	mov 		rsi, fizzbuzz	
+	mov		rdx, fizzbuzz_len
+	call		print_string
+
+	jmp 		.fizzbuzz_loop
 	
-	
+.print_fizz:
+	mov		rsi, fizz
+	mov		rdx, msg_len
+	call		print_string
+
+	jmp 		.fizzbuzz_loop
+
+.print_buzz:
+	mov		rsi, buzz
+	mov		rdx, msg_len
+	call		print_string
+
+	jmp 		.fizzbuzz_loop
 
 .is_divisible:
 	; args:
@@ -90,10 +128,10 @@ _start:
 	xor 		rdx, rdx
 	
 	mov 		rax, rdi
-	div		rsx
+	div		rsi
 
 	cmp 		rdx, 0
-	jmp		.divisible_true
+	je		.divisible_true
 
 	mov 		rax, 0
 	ret	
