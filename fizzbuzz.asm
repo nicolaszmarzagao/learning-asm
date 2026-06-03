@@ -4,6 +4,7 @@ extern args_init
 extern get_argc
 extern get_arg
 extern print_number
+extern atoi
 
 section .data
 	space db " "
@@ -33,17 +34,9 @@ _start:
 	call get_arg
 	cmp rax, 0
 	je no_arg_exit
+	
+	; use atoi here
 
-	mov rsi, rax
-	mov rdx, 6
-	call print_string
-
-
-	mov rsi, newline
-	mov rdx, 1
-	call print_string
-
-	exit 0	
 
 	;mov byte [counter], 20
 
