@@ -32,7 +32,7 @@ $(BUILD_DIR):
 $(BUILD_DIR)/%.o: %.asm $(MACROS) | $(BUILD_DIR)
 	@echo "running nasm on $<..."
 	@mkdir -p $(dir $@)
-	$(ASM) $(ASMFLAGS) $< -o $@
+	$(ASM) $(ASMFLAGS) $< -o $@ -g
 
 $(TARGET): $(OBJECTS)
 	@echo "running linker..."
